@@ -71,8 +71,16 @@ Update the input handling:
 Replace example tests with tests for your actual functionality
 
 ##### `.npmrc` (if publishing to npm)
-- **Line 4**: Replace `@your-gh-username` with your actual GitHub username or organization
+- **Line 1**: Replace `@fabriciobastian` with your actual GitHub username or organization
+- Example: `@your-username:registry=https://npm.pkg.github.com`
 - See the [Configuring npm Publishing](#configuring-npm-publishing) section for complete setup instructions
+
+##### `src/package/package.json` (if publishing to npm)
+- **Line 2**: Update the package `name` from `@fabriciobastian/javascript-gh-action-template` to match your username/org
+- Example: `"name": "@your-username/your-action-name"`
+- **Line 5**: Update `author` with your name and email
+- **Line 11**: Update the repository `url` to match your repository
+- **Lines 13-17**: Update `keywords` to reflect your action
 
 ##### `LICENSE`
 - Update with appropriate license information if needed
@@ -85,7 +93,12 @@ Search for `TO BE UPDATED` comments throughout the codebase and address them.
 
 ```
 .
-├── action.yml                    # GitHub Action metadata and configuration
+├── .github/
+│   └── workflows/
+│       ├── ci.yml               # Continuous Integration workflow
+│       └── cd.yml               # Continuous Delivery workflow (release automation)
+├── .npmrc                       # npm registry configuration (for GitHub Packages)
+├── action.yml                   # GitHub Action metadata and configuration
 ├── CODEOWNERS                   # Code ownership configuration
 ├── dist/
 │   └── index.js                 # Bundled action code (generated)
@@ -170,27 +183,48 @@ The GitHub workflows orchestrate the release process using the included automati
 
 ### Configuring npm Publishing
 
-By default, the release workflow is configured to publish your action as an npm package to GitHub Package Registry.
+By default, the release workflow is configured to publish your action as an npm package to **GitHub Package Registry**. The workflow uses the built-in `GITHUB_TOKEN` which automatically has the necessary permissions - no additional secrets needed!
 
-#### If You Want to Publish to npm:
+#### If You Want to Publish to GitHub Packages:
 
-1. **Update `.npmrc`** (line 4):
-   - Replace `@your-gh-username` with your GitHub username or organization name
-   - Example: `@octocat:registry=https://npm.pkg.github.com`
+1. **Update `.npmrc`** (line 1):
+   - Replace `@fabriciobastian` with your GitHub username or organization name
+   - Example: `@your-username:registry=https://npm.pkg.github.com`
 
-2. **Set up the `NPM_GITHUB_TOKEN` secret**:
-   - Go to your repository **Settings → Secrets and variables → Actions**
-   - Click **New repository secret**
-   - Name: `NPM_GITHUB_TOKEN`
-   - Value: A GitHub Personal Access Token (classic) with **`write:packages`** and **`read:packages`** permissions
-   - To create a token, go to **GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)**
+2. **Update `src/package/package.json`**:
+   - **Line 2**: Change the package name to `@your-username/your-action-name`
+   - **Line 11**: Update the repository URL to match your repository
+   - Ensure the package name matches the scope in `.npmrc`
 
-3. **Update `package.json`** (if needed):
-   - Ensure your package name matches the scope (e.g., `"name": "@your-username/your-action"`)
+3. **That's it!** The workflow is already configured with the necessary permissions:
+   ```yaml
+   permissions:
+     contents: write   # For creating releases
+     packages: write   # For publishing to GitHub Packages
+   ```
+
+The built-in `GITHUB_TOKEN` is automatically provided by GitHub Actions and has all the permissions configured in the workflow file - no manual token creation needed!
+
+#### Publishing to Public npm Registry (Alternative):
+
+If you want to publish to the public npm registry instead of GitHub Packages:
+
+1. **Update `.npmrc`**:
+   - Remove the scoped registry configuration
+   - Replace with: `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`
+
+2. **Create an npm token**:
+   - Log in to [npmjs.com](https://www.npmjs.com/)
+   - Go to **Access Tokens → Generate New Token**
+   - Choose "Automation" type
+   - Add it as a repository secret named `NPM_TOKEN`
+
+3. **Update `.github/workflows/cd.yml`**:
+   - Change the environment variable from `GITHUB_TOKEN` to `NPM_TOKEN`
 
 #### If You DON'T Want to Publish to npm:
 
-If you only want to create GitHub releases without publishing to npm, you need to modify the release script:
+If you only want to create GitHub releases without publishing any npm package:
 
 1. **Edit `tools/release.js`**:
    - Comment out or remove lines 62-85 (the npm publish section):
@@ -201,7 +235,7 @@ If you only want to create GitHub releases without publishing to npm, you need t
    ```
 
 2. **Update `.github/workflows/cd.yml`**:
-   - Remove the `.npmrc` move command (line 34):
+   - Remove the `.npmrc` move command (line 37):
    ```yaml
    - name: Release
      shell: bash
@@ -209,10 +243,9 @@ If you only want to create GitHub releases without publishing to npm, you need t
        # mv .npmrc ~/.npmrc  <- Remove this line
        node tools/release.js
    ```
-   - Optionally remove the `NPM_GITHUB_TOKEN` environment variable (lines 36-37)
 
-3. **Delete `.npmrc`** (optional):
-   - If you're not publishing to npm at all, you can delete this file
+3. **Delete `.npmrc` and `src/package/`** (optional):
+   - If you're not publishing to npm at all, you can delete these files
 
 **Note**: Even without npm publishing, the workflow will still create GitHub releases and manage version tags automatically.
 
