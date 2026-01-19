@@ -1,0 +1,6 @@
+dist/
+dist-package/
+node_modules/
+package-lock.json
+.github/*
+README.md

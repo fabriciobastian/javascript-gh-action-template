@@ -1,0 +1,19 @@
+{
+  "name": "@fabriciobastian/javascript-gh-action-template",
+  "version": "1.0.0",
+  "description": "My action description",
+  "author": "Your name <your.name@example.com>",
+  "bin": {
+    "my-action": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabriciobastian/javascript-gh-action-template.git"
+  },
+  "keywords": [
+    "fbb-gh-action-template",
+    "github",
+    "github-actions",
+    "my-action-keywords"
+  ]
+}

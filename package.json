@@ -1,0 +1,31 @@
+{
+  "name": "my-action",
+  "version": "1.0.0",
+  "description": "My action description",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine --config=jasmine.json",
+    "format:write": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
+    "build": "rollup --config rollup.config.js",
+    "build:package": "rollup --config rollup-package.config.js && cp src/package/package.json dist-package/package.json"
+  },
+  "keywords": [
+    "fbb-gh-action-template",
+    "github",
+    "github-actions",
+    "my-action-keywords"
+  ],
+  "author": "Your name <your.name@example.com>",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "chalk": "^4.1.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "jasmine": "^5.10.0",
+    "rollup": "^4.50.1"
+  }
+}

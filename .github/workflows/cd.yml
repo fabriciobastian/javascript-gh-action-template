@@ -1,0 +1,40 @@
+name: 📦 Continuous Delivery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cd:
+    name: Continuous Delivery
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 24.8.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24.8.0
+          cache: "npm"
+
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+
+      - name: Release
+        shell: bash
+        run: |
+          mv .npmrc ~/.npmrc
+          node tools/release.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

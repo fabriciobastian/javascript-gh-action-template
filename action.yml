@@ -1,0 +1,14 @@
+## TO BE UPDATED
+
+name: My Template Action # TO BE UPDATED
+description: The description of the template action # TO BE UPDATED
+
+inputs:
+  example-input:
+    description: 'An example input, add and change as needed'
+    required: false
+    default: 'example-default-value'
+
+runs:
+  using: node24
+  main: dist/index.js

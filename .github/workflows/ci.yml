@@ -1,0 +1,67 @@
+name: ✅ Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 24.8.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24.8.0
+          cache: "npm"
+
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+
+      - name: Check formatting
+        shell: bash
+        run: npm run format:check
+
+      - name: Build
+        shell: bash
+        run: npm run build
+
+      - name: Check if dist/index.js is up to date
+        shell: bash
+        run: |
+          if ! git diff --quiet dist/index.js; then
+            echo "❌ dist/index.js has uncommitted changes"
+            echo "Please run 'npm run build' and commit the changes"
+            git diff dist/index.js
+            exit 1
+          else
+            echo "✅ dist/index.js is up to date"
+          fi
+
+      - name: Build package
+        shell: bash
+        run: npm run build:package
+
+      - name: Check version bump when built files change
+        shell: bash
+        run: node tools/check-version-bump.js
+
+      - name: Test
+        shell: bash
+        run: npm run test
